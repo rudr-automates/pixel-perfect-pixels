@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ApiStructureKnowledgeRouteImport } from './routes/api/structure-knowledge'
+import { Route as ApiTranscribeAudioRouteImport } from './routes/api/transcribe-audio'
 import { Route as KnowledgeIdRouteImport } from './routes/knowledge.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +37,16 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStructureKnowledgeRoute = ApiStructureKnowledgeRouteImport.update({
+  id: '/api/structure-knowledge',
+  path: '/api/structure-knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTranscribeAudioRoute = ApiTranscribeAudioRouteImport.update({
+  id: '/api/transcribe-audio',
+  path: '/api/transcribe-audio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KnowledgeIdRoute = KnowledgeIdRouteImport.update({
   id: '/knowledge/$id',
   path: '/knowledge/$id',
@@ -46,6 +58,8 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/record': typeof RecordRoute
   '/search': typeof SearchRoute
+  '/api/structure-knowledge': typeof ApiStructureKnowledgeRoute
+  '/api/transcribe-audio': typeof ApiTranscribeAudioRoute
   '/knowledge/$id': typeof KnowledgeIdRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +67,8 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRoute
   '/record': typeof RecordRoute
   '/search': typeof SearchRoute
+  '/api/structure-knowledge': typeof ApiStructureKnowledgeRoute
+  '/api/transcribe-audio': typeof ApiTranscribeAudioRoute
   '/knowledge/$id': typeof KnowledgeIdRoute
 }
 export interface FileRoutesById {
@@ -61,14 +77,38 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/record': typeof RecordRoute
   '/search': typeof SearchRoute
+  '/api/structure-knowledge': typeof ApiStructureKnowledgeRoute
+  '/api/transcribe-audio': typeof ApiTranscribeAudioRoute
   '/knowledge/$id': typeof KnowledgeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explore' | '/record' | '/search' | '/knowledge/$id'
+  fullPaths:
+    | '/'
+    | '/explore'
+    | '/record'
+    | '/search'
+    | '/api/structure-knowledge'
+    | '/api/transcribe-audio'
+    | '/knowledge/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explore' | '/record' | '/search' | '/knowledge/$id'
-  id: '__root__' | '/' | '/explore' | '/record' | '/search' | '/knowledge/$id'
+  to:
+    | '/'
+    | '/explore'
+    | '/record'
+    | '/search'
+    | '/api/structure-knowledge'
+    | '/api/transcribe-audio'
+    | '/knowledge/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/explore'
+    | '/record'
+    | '/search'
+    | '/api/structure-knowledge'
+    | '/api/transcribe-audio'
+    | '/knowledge/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +116,8 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   RecordRoute: typeof RecordRoute
   SearchRoute: typeof SearchRoute
+  ApiStructureKnowledgeRoute: typeof ApiStructureKnowledgeRoute
+  ApiTranscribeAudioRoute: typeof ApiTranscribeAudioRoute
   KnowledgeIdRoute: typeof KnowledgeIdRoute
 }
 
@@ -109,6 +151,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/structure-knowledge': {
+      id: '/api/structure-knowledge'
+      path: '/api/structure-knowledge'
+      fullPath: '/api/structure-knowledge'
+      preLoaderRoute: typeof ApiStructureKnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/transcribe-audio': {
+      id: '/api/transcribe-audio'
+      path: '/api/transcribe-audio'
+      fullPath: '/api/transcribe-audio'
+      preLoaderRoute: typeof ApiTranscribeAudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/knowledge/$id': {
       id: '/knowledge/$id'
       path: '/knowledge/$id'
@@ -124,6 +180,8 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   RecordRoute: RecordRoute,
   SearchRoute: SearchRoute,
+  ApiStructureKnowledgeRoute: ApiStructureKnowledgeRoute,
+  ApiTranscribeAudioRoute: ApiTranscribeAudioRoute,
   KnowledgeIdRoute: KnowledgeIdRoute,
 }
 export const routeTree = rootRouteImport
