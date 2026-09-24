@@ -38,7 +38,8 @@ export class DemoKnowledgeRepository implements KnowledgeRepository {
   }
 
   private contributorOf(id: string): Contributor {
-    return this.contributors.find((c) => c.id === id) ?? this.contributors[0];
+    const found = this.contributors.find((c) => c.id === id);
+    return found ?? (this.contributors[0] as Contributor);
   }
 
   private reportsOf(recordId: string): CommunityReport[] {

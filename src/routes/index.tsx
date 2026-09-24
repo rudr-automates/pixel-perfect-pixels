@@ -118,7 +118,7 @@ function Home() {
   );
 }
 
-function Stat({ value, label }: { value?: number; label: string }) {
+function Stat({ value, label }: { value?: number | undefined; label: string }) {
   return (
     <div>
       <p className="display text-5xl text-foreground">{value ?? "—"}</p>

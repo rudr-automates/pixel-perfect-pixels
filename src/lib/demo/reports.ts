@@ -320,11 +320,11 @@ function buildReports(seed: ReportSeed): CommunityReport[] {
     return {
       id: `${seed.recordId}-r${String(index + 1).padStart(2, "0")}`,
       knowledgeRecordId: seed.recordId,
-      reporterId: seed.reporters[index % seed.reporters.length],
+      reporterId: seed.reporters[index % seed.reporters.length] as string,
       outcome,
-      notes: index % 3 === 0 && notes.length > 0 ? notes[index % notes.length] : null,
+      notes: index % 3 === 0 && notes.length > 0 ? (notes[index % notes.length] as string) : null,
       audioUrl: null,
-      location: seed.locations[index % seed.locations.length],
+      location: seed.locations[index % seed.locations.length] as string,
       createdAt: new Date(start + index * DAY_MS * 0.6).toISOString(),
       isDemo: true,
     };

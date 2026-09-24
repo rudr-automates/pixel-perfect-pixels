@@ -177,12 +177,12 @@ export interface SearchUnderstanding {
 }
 
 export interface SearchFilters {
-  crop?: string;
-  animal?: string;
-  region?: string;
-  practice?: string;
-  evidence?: EvidenceRelationship | "community_only";
-  language?: string;
+  crop?: string | undefined;
+  animal?: string | undefined;
+  region?: string | undefined;
+  practice?: string | undefined;
+  evidence?: EvidenceRelationship | "community_only" | undefined;
+  language?: string | undefined;
 }
 
 export interface KnowledgeSearchResult {
@@ -226,9 +226,9 @@ export interface CreateKnowledgeInput {
 export interface OutcomeReportInput {
   knowledgeRecordId: string;
   outcome: OutcomeValue;
-  notes?: string | null;
+  notes?: string | null | undefined;
   location: string;
-  audioUrl?: string | null;
+  audioUrl?: string | null | undefined;
 }
 
 /** Full detail payload for the knowledge record screen. */

@@ -9,18 +9,19 @@ import { useKnowledgeSearch } from "@/hooks/useKnowledgeSearch";
 import type { SearchFilters } from "@/lib/domain/types";
 
 interface SearchParams {
-  q?: string;
-  crop?: string;
-  region?: string;
-  from?: "voice" | "text";
+  q?: string | undefined;
+  crop?: string | undefined;
+  region?: string | undefined;
+  from?: "voice" | "text" | undefined;
 }
 
 export const Route = createFileRoute("/search")({
   validateSearch: (search: Record<string, unknown>): SearchParams => ({
-    q: typeof search.q === "string" ? search.q : undefined,
-    crop: typeof search.crop === "string" ? search.crop : undefined,
-    region: typeof search.region === "string" ? search.region : undefined,
-    from: search.from === "voice" ? "voice" : search.from === "text" ? "text" : undefined,
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
+    crop: typeof search["crop"] === "string" ? (search["crop"] as string) : undefined,
+    region: typeof search["region"] === "string" ? (search["region"] as string) : undefined,
+    from:
+      search["from"] === "voice" ? "voice" : search["from"] === "text" ? "text" : undefined,
   }),
   head: () => ({
     meta: [
