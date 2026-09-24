@@ -10,12 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as RecordRouteImport } from './routes/record'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as KnowledgeIdRouteImport } from './routes/knowledge.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordRoute = RecordRouteImport.update({
+  id: '/record',
+  path: '/record',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -31,30 +43,38 @@ const KnowledgeIdRoute = KnowledgeIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
+  '/record': typeof RecordRoute
   '/search': typeof SearchRoute
   '/knowledge/$id': typeof KnowledgeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
+  '/record': typeof RecordRoute
   '/search': typeof SearchRoute
   '/knowledge/$id': typeof KnowledgeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
+  '/record': typeof RecordRoute
   '/search': typeof SearchRoute
   '/knowledge/$id': typeof KnowledgeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/search' | '/knowledge/$id'
+  fullPaths: '/' | '/explore' | '/record' | '/search' | '/knowledge/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/search' | '/knowledge/$id'
-  id: '__root__' | '/' | '/search' | '/knowledge/$id'
+  to: '/' | '/explore' | '/record' | '/search' | '/knowledge/$id'
+  id: '__root__' | '/' | '/explore' | '/record' | '/search' | '/knowledge/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExploreRoute: typeof ExploreRoute
+  RecordRoute: typeof RecordRoute
   SearchRoute: typeof SearchRoute
   KnowledgeIdRoute: typeof KnowledgeIdRoute
 }
@@ -66,6 +86,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/record': {
+      id: '/record'
+      path: '/record'
+      fullPath: '/record'
+      preLoaderRoute: typeof RecordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -87,6 +121,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExploreRoute: ExploreRoute,
+  RecordRoute: RecordRoute,
   SearchRoute: SearchRoute,
   KnowledgeIdRoute: KnowledgeIdRoute,
 }
