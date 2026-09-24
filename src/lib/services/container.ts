@@ -25,12 +25,12 @@ function createServices() {
 
   const speech: SpeechService =
     appMode === "live"
-      ? new SarvamSpeechService("/api/public/transcribe-audio")
+      ? new SarvamSpeechService("/api/transcribe-audio")
       : new DemoSpeechService();
 
   const understanding: KnowledgeUnderstandingService =
     appMode === "live"
-      ? new GeminiKnowledgeUnderstandingService("/api/public/structure-knowledge")
+      ? new GeminiKnowledgeUnderstandingService("/api/structure-knowledge")
       : new DemoKnowledgeUnderstandingService();
 
   return {

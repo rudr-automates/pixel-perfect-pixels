@@ -6,7 +6,7 @@ import type { SpeechInput, SpeechService } from "./speech-service";
  * LIVE SPEECH ADAPTER — Sarvam Speech-to-Text.
  *
  * The API key must never reach the browser. This adapter posts the captured
- * audio to a Supabase Edge Function (`transcribe-audio`) which holds the key
+ * audio to a server route (`/api/transcribe-audio`) which holds the key
  * and returns a normalized payload matching `speechTranscriptionSchema`.
  */
 export class SarvamSpeechService implements SpeechService {

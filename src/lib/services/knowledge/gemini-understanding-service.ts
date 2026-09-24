@@ -5,7 +5,7 @@ import type { KnowledgeUnderstandingService } from "./understanding-service";
 /**
  * LIVE UNDERSTANDING ADAPTER — Gemini.
  *
- * Calls a Supabase Edge Function (`structure-knowledge`) that holds the API key
+ * Calls a server route (`/api/structure-knowledge`) that holds the API key
  * and returns normalized JSON. Provider-specific response shapes are parsed and
  * validated here; nothing Gemini-shaped escapes this file.
  */
