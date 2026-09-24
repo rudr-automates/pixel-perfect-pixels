@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 
 interface WaveformProps {
   levels: number[];
-  active?: boolean;
-  className?: string;
-  tone?: "primary" | "muted";
+  active?: boolean | undefined;
+  className?: string | undefined;
+  tone?: "primary" | "muted" | undefined;
 }
 
 /**
@@ -34,7 +34,13 @@ export function Waveform({ levels, active = false, className, tone = "primary" }
 }
 
 /** Idle decorative waveform used in headers and empty states. */
-export function StaticWaveform({ bars = 32, className }: { bars?: number; className?: string }) {
+export function StaticWaveform({
+  bars = 32,
+  className,
+}: {
+  bars?: number | undefined;
+  className?: string | undefined;
+}) {
   const levels = Array.from({ length: bars }, (_, i) => 0.12 + Math.abs(Math.sin(i * 0.7)) * 0.5);
   return <Waveform levels={levels} className={className} tone="muted" />;
 }
