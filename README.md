@@ -1,24 +1,18 @@
-# Pixel Perfect Pixels
+# AgriVoice — Prototype 01
 
-Implement exactly the screenshot and nothing else
+Voice-first community agricultural knowledge archive. Not a chatbot or advisory engine.
 
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/38cfeaa6-1472-4949-baa0-8ca813918735).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```bash
+bun install
+bun run dev     # demo mode, no keys needed
+bun run test    # community-signal logic tests
+bun run build
 ```
+
+Architecture: routes → features → hooks → services → repositories / provider adapters.
+Demo vs live is selected only in `src/lib/services/container.ts`.
+
+See `docs/HANDOFF.md` for what works now vs. what needs live integration,
+environment variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`; server-only
+`SARVAM_API_KEY`, `GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) and the migration in
+`supabase/migrations/001_initial_schema.sql`.
