@@ -35,12 +35,12 @@ export function VoiceQueryBar({ initialQuery = "", onSubmit, size = "bar" }: Voi
       return;
     }
 
-    capture.stop();
     setPhase("understanding");
+    const completed = await capture.stop();
     try {
       const result = await getServices().speech.transcribe({
-        audio: capture.audio,
-        durationSeconds: capture.seconds,
+        audio: completed.audio,
+        durationSeconds: completed.durationSeconds,
         scriptHint: "search",
       });
       setText(result.transcript);
