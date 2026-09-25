@@ -15,6 +15,7 @@ export function OutcomeReporting({ recordId }: { recordId: string }) {
   const [location, setLocation] = useState("");
   const [showContext, setShowContext] = useState(false);
   const [voiceNote, setVoiceNote] = useState<string | null>(null);
+  const [voiceUrl, setVoiceUrl] = useState<string | null>(null);
   const capture = useVoiceCapture();
   const mutation = useOutcomeReport(recordId);
 
@@ -23,12 +24,28 @@ export function OutcomeReporting({ recordId }: { recordId: string }) {
       await capture.start();
       return;
     }
-    capture.stop();
-    const result = await getServices().speech.transcribe({
-      audio: capture.audio,
-      durationSeconds: capture.seconds,
-      scriptHint: "record",
-    });
+    const services = getServices();
+    const completed = await capture.stop();
+    if (completed.audio) {
+      try {
+        const stored = await services.audioStorage.store(completed.audio, "outcome");
+        setVoiceUrl(stored.url);
+      } catch {
+        setVoiceUrl(null);
+      }
+    }
+    let result;
+    try {
+      result = await services.speech.transcribe({
+        audio: completed.audio,
+        durationSeconds: completed.durationSeconds,
+        scriptHint: "record",
+      });
+    } catch {
+      capture.reset();
+      setShowContext(true);
+      return;
+    }
     setVoiceNote(result.transcript);
     setNotes((prev) => (prev.length > 0 ? prev : result.transcript));
     setShowContext(true);
@@ -42,7 +59,7 @@ export function OutcomeReporting({ recordId }: { recordId: string }) {
       outcome,
       notes: notes.trim().length > 0 ? notes.trim() : null,
       location: location.trim().length > 0 ? location.trim() : "Not specified",
-      audioUrl: null,
+      audioUrl: voiceUrl,
     });
   };
 

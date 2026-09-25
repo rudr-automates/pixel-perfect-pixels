@@ -12,6 +12,11 @@ import { KnowledgeSearchService } from "./search/knowledge-search-service";
 import { KnowledgeService } from "./knowledge/knowledge-service";
 import { EvidenceService } from "./evidence/evidence-service";
 import { OutcomeService } from "./outcome/outcome-service";
+import {
+  SessionAudioStorageService,
+  SupabaseAudioStorageService,
+  type AudioStorageService,
+} from "./audio/audio-storage-service";
 
 /**
  * Composition root.
@@ -33,8 +38,12 @@ function createServices() {
       ? new GeminiKnowledgeUnderstandingService("/api/structure-knowledge")
       : new DemoKnowledgeUnderstandingService();
 
+  const audioStorage: AudioStorageService =
+    appMode === "live" ? new SupabaseAudioStorageService() : new SessionAudioStorageService();
+
   return {
     mode: appMode,
+    audioStorage,
     repository,
     speech,
     understanding,

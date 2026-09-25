@@ -50,6 +50,8 @@ function RecordPage() {
   const [structure, setStructure] = useState<KnowledgeStructureResult | null>(null);
   const [newRecordId, setNewRecordId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioKey, setAudioKey] = useState<string | null>(null);
   const [stage, setStage] = useState<"voice" | "transcript" | "structure">("voice");
 
   const services = getServices();
@@ -60,15 +62,27 @@ function RecordPage() {
       await capture.start();
       return;
     }
-    capture.stop();
     setStep("understand");
     setStage("voice");
     setError(null);
 
+    const completed = await capture.stop();
+    if (completed.audio) {
+      if (audioKey) services.audioStorage.discard(audioKey);
+      try {
+        const stored = await services.audioStorage.store(completed.audio, "knowledge");
+        setAudioKey(stored.key);
+        setAudioUrl(stored.url);
+      } catch {
+        setAudioKey(null);
+        setAudioUrl(null);
+      }
+    }
+
     try {
       const speech = await services.speech.transcribe({
-        audio: capture.audio,
-        durationSeconds: capture.seconds,
+        audio: completed.audio,
+        durationSeconds: completed.durationSeconds,
         scriptHint: "record",
       });
       setTranscript(speech.transcript);
@@ -94,12 +108,13 @@ function RecordPage() {
         originalLanguage: "Hindi",
         dialect: "Bundeli",
         structure,
-        audioUrl: null,
+        audioUrl,
         contributorId: demoSessionContributorId,
         consentConfirmed: consent,
       },
       {
         onSuccess: (record) => {
+          if (audioKey) services.audioStorage.attach(audioKey, record.id);
           setNewRecordId(record.id);
           setStep("done");
         },

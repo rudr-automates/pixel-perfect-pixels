@@ -17,11 +17,21 @@ export interface VoiceCaptureState {
   error: string | null;
 }
 
+/** The finalized recording, returned only after MediaRecorder.onstop has fired. */
+export interface CompletedRecording {
+  audio: Blob | null;
+  durationSeconds: number;
+}
+
 const BAR_COUNT = 28;
 
 /**
  * Real browser microphone capture (MediaRecorder + WebAudio level metering).
  * Transcription is a separate concern handled by the SpeechService.
+ *
+ * Contract: `const { audio } = await capture.stop()` resolves with the completed
+ * Blob only after MediaRecorder has flushed its final chunk and `onstop` fired.
+ * Callers must never read `capture.audio` immediately after stopping.
  */
 export function useVoiceCapture() {
   const [state, setState] = useState<VoiceCaptureState>({
@@ -39,8 +49,11 @@ export function useVoiceCapture() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  /** Seconds tracked in a ref so stop() can resolve without stale React state. */
+  const secondsRef = useRef(0);
+  const stopResolverRef = useRef<((result: CompletedRecording) => void) | null>(null);
 
-  const cleanup = useCallback(() => {
+  const stopMetering = useCallback(() => {
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
     if (timerRef.current) clearInterval(timerRef.current);
@@ -50,8 +63,19 @@ export function useVoiceCapture() {
     void audioContextRef.current?.close().catch(() => undefined);
     audioContextRef.current = null;
     analyserRef.current = null;
-    recorderRef.current = null;
   }, []);
+
+  const cleanup = useCallback(() => {
+    stopMetering();
+    const recorder = recorderRef.current;
+    recorderRef.current = null;
+    if (recorder && recorder.state !== "inactive") {
+      recorder.onstop = null;
+      recorder.stop();
+    }
+    stopResolverRef.current?.({ audio: null, durationSeconds: secondsRef.current });
+    stopResolverRef.current = null;
+  }, [stopMetering]);
 
   useEffect(() => cleanup, [cleanup]);
 
@@ -87,14 +111,21 @@ export function useVoiceCapture() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       chunksRef.current = [];
+      secondsRef.current = 0;
 
       const recorder = new MediaRecorder(stream);
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        setState((prev) => ({ ...prev, status: "captured", audio: blob }));
+        const blob =
+          chunksRef.current.length > 0
+            ? new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" })
+            : null;
+        const durationSeconds = secondsRef.current;
+        setState((prev) => ({ ...prev, status: "captured", audio: blob, seconds: durationSeconds }));
+        stopResolverRef.current?.({ audio: blob, durationSeconds });
+        stopResolverRef.current = null;
       };
       recorder.start();
       recorderRef.current = recorder;
@@ -114,9 +145,9 @@ export function useVoiceCapture() {
       }
 
       timerRef.current = setInterval(() => {
-        setState((prev) =>
-          prev.status === "recording" ? { ...prev, seconds: prev.seconds + 1 } : prev,
-        );
+        if (recorderRef.current?.state !== "recording") return;
+        secondsRef.current += 1;
+        setState((prev) => ({ ...prev, seconds: secondsRef.current }));
       }, 1000);
 
       setState((prev) => ({
@@ -150,21 +181,26 @@ export function useVoiceCapture() {
     }
   }, []);
 
-  const stop = useCallback(() => {
-    if (recorderRef.current && recorderRef.current.state !== "inactive") {
-      recorderRef.current.stop();
-    } else {
+  /** Stops recording and resolves with the finalized Blob after onstop fires. */
+  const stop = useCallback((): Promise<CompletedRecording> => {
+    const recorder = recorderRef.current;
+    if (!recorder || recorder.state === "inactive") {
+      stopMetering();
       setState((prev) => ({ ...prev, status: "captured" }));
+      return Promise.resolve({ audio: null, durationSeconds: secondsRef.current });
     }
-    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    rafRef.current = null;
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = null;
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-  }, []);
+    const completed = new Promise<CompletedRecording>((resolve) => {
+      stopResolverRef.current = resolve;
+    });
+    recorder.stop(); // onstop resolves the promise with the final Blob
+    recorderRef.current = null;
+    stopMetering();
+    return completed;
+  }, [stopMetering]);
 
   const reset = useCallback(() => {
     cleanup();
+    secondsRef.current = 0;
     setState({
       status: "idle",
       seconds: 0,
