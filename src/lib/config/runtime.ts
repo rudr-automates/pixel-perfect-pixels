@@ -2,8 +2,9 @@
  * Runtime configuration.
  *
  * DEMO is the default mode and must work with zero external credentials.
- * LIVE only activates when the required configuration is present; the app never
- * silently fabricates results after a failed live call.
+ * LIVE is used whenever it is requested. If its configuration is missing the
+ * app stays in LIVE and exposes an explicit configuration error — it never
+ * silently becomes demo, and never fabricates results after a failed live call.
  */
 
 export type AppMode = "demo" | "live";
@@ -17,17 +18,17 @@ const requestedMode = (readEnv("VITE_APP_MODE") ?? "demo").toLowerCase();
 
 export const supabaseConfig = {
   url: readEnv("VITE_SUPABASE_URL") ?? null,
-  anonKey: readEnv("VITE_SUPABASE_ANON_KEY") ?? null,
+  publishableKey: readEnv("VITE_SUPABASE_PUBLISHABLE_KEY") ?? null,
 };
 
-export const isSupabaseConfigured = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
+export const isSupabaseConfigured = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
 
-/** Live mode requires a configured backend; otherwise we stay honestly in demo. */
-export const appMode: AppMode = requestedMode === "live" && isSupabaseConfigured ? "live" : "demo";
+export const appMode: AppMode = requestedMode === "live" ? "live" : "demo";
 
 export const isDemoMode = appMode === "demo";
 
-export const liveModeUnavailableReason =
-  requestedMode === "live" && !isSupabaseConfigured
-    ? "Live mode requested but the backend is not configured. Running in demo mode."
+/** Non-null when live mode was requested but cannot run. Shown in the UI. */
+export const liveConfigError: string | null =
+  appMode === "live" && !isSupabaseConfigured
+    ? "Live mode is selected but VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY are missing. Live data is unavailable; set VITE_APP_MODE=demo to use the demo."
     : null;

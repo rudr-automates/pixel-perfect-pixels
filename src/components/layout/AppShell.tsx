@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { isDemoMode } from "@/lib/config/runtime";
+import { isDemoMode, liveConfigError } from "@/lib/config/runtime";
 
 const NAV = [
   { to: "/search", label: "Search" },
@@ -36,6 +36,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
+
+      {liveConfigError && (
+        <div role="alert" className="border-b border-destructive/40 bg-destructive/10 px-5 py-3 text-center text-sm text-destructive md:px-10">
+          {liveConfigError}
+        </div>
+      )}
 
       <main className="flex-1">{children}</main>
 
